@@ -1,10 +1,11 @@
 #include <stdio.h>
 int main() {
-    long long t, a, b;
-    scanf("%ld", &t);
+    unsigned short t;
+    unsigned int a, b;
+    scanf("%hu", &t);
     while(t--) {
-        scanf("%ld %ld", &a, &b);
-        printf("%ld\n", a + b);
+        scanf("%u %u", &a, &b);
+        printf("%u\n", a + b);
     }
     return 0;
 }
