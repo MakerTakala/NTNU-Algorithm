@@ -1,8 +1,8 @@
 #include <stdio.h>
+unsigned int t, a, b;
 int main() {
-    unsigned short t;
-    unsigned int a, b;
-    scanf("%hu", &t);
+    scanf("%u", &t);
+    
     while(t--) {
         scanf("%u %u", &a, &b);
         printf("%u\n", a + b);
