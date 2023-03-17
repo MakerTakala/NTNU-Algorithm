@@ -1,14 +1,10 @@
 #include <bits/stdc++.h>
+using namespace std;
+
 #define ll long long int
 #define Node pair<ll, ll>
 #define x first
 #define y second
-using namespace std;
-
-bool pair_compare(Node p1, Node p2) {
-    if(p1.x == p2.x) return p1.y < p2.y;
-    return p1.x < p2.x;
-}
 
 ll get_area(Node p1, Node p2, Node p3) {
     ll a1 = p1.x * p2.y + p2.x * p3.y + p3.x * p1.y;
@@ -17,7 +13,7 @@ ll get_area(Node p1, Node p2, Node p3) {
 }
 
 ll find_convex(Node leftest_node, Node rightest_node, vector<Node> nodes) {
-    if(nodes.empty()) return;
+    if(nodes.empty()) return 0;
 
     Node max_node;
     ll max_area = 0;
@@ -29,9 +25,8 @@ ll find_convex(Node leftest_node, Node rightest_node, vector<Node> nodes) {
         }
     }
 
-
     vector<Node> left_nodes, right_nodes;
-    for(auto node : nodes) {
+    for(Node node : nodes) {
         if(get_area(leftest_node, max_node, node) > 0) 
             left_nodes.push_back(node);
         else if(get_area(max_node, rightest_node, node) > 0)
@@ -42,19 +37,21 @@ ll find_convex(Node leftest_node, Node rightest_node, vector<Node> nodes) {
 }
 
 int main() {
-    int n;
+    ios_base::sync_with_stdio(false);
+    cin.tie(nullptr);
 
+    int n;
     cin>>n;
     vector<Node> nodes(n);
     for(Node &node : nodes) {
         cin>>node.x>>node.y;
     }
-    sort(nodes.begin(), nodes.end(), pair_compare);
+    sort(nodes.begin(), nodes.end());
 
     Node leftest_node = nodes.front(), rightest_node = nodes.back();
     vector<Node> up_nodes, down_nodes;
 
-    for(auto node : nodes) {
+    for(Node node : nodes) {
         ll area = get_area(leftest_node, rightest_node, node);
         if(area > 0) 
             up_nodes.push_back(node);
@@ -62,7 +59,9 @@ int main() {
             down_nodes.push_back(node);
     }
 
-    cout<<(find_convex(leftest_node, rightest_node, up_nodes) + find_convex(rightest_node, leftest_node, down_nodes)) / 2.0<<endl;
+    ll total = find_convex(leftest_node, rightest_node, up_nodes) + find_convex(rightest_node, leftest_node, down_nodes);
+
+    cout<<total / 2<<(total % 2 ? ".5":"")<<endl;
 
     return 0;
 }

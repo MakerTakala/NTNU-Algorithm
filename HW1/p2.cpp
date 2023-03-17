@@ -22,7 +22,7 @@ int slover(vector<int> &diff, int n, int m) {
         if(u < cur_pos && cur_pos <= v + 1) u = cur_pos;
 
         diff[u] -= k;
-        if(v < n)diff[v + 1] += k;
+        if(v < n) diff[v + 1] += k;
 
         forward(diff, cur_pos, cur_sum);
         if(cur_pos == n) return i;
@@ -31,6 +31,9 @@ int slover(vector<int> &diff, int n, int m) {
 }
 
 int main(){
+    ios_base::sync_with_stdio(false);
+    cin.tie(nullptr);
+
     int n, m;
     cin>>n>>m;
     vector<int> areas(n, 0);
