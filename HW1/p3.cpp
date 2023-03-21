@@ -73,9 +73,9 @@ int main() {
 
     solver(puzzle, blacks, {0, 0}, l);
 
-    for(auto y : puzzle) {
-        for(auto x : y) {
-            cout<<x<<" ";
+    for(int i = 0; i < l; i++) {
+        for(int j = 0; j < l; j++) {
+            cout<<puzzle[j][i]<<" ";
         }
         cout<<endl;
     }
