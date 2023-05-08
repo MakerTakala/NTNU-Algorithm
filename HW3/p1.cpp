@@ -6,7 +6,7 @@ using namespace std;
 int idx = 0;
 vector<int> dfn(MAX, 0), low(MAX, 0);
 vector<vector<int>> graph(MAX);
-set<pair<int, int>> ans;
+vector<pair<int, int>> ans;
 
 void DFS(int cur, int parent) {
     dfn[cur] = low[cur] = ++idx;
@@ -17,7 +17,7 @@ void DFS(int cur, int parent) {
             low[cur] = min(low[cur], low[next]);
 
             if(low[next] > dfn[cur]) {
-                ans.insert({min(cur, next), max(cur, next)});
+                ans.push_back({min(cur, next), max(cur, next)});
             }
         }
         else if(next != parent) {
@@ -40,7 +40,13 @@ int main() {
         graph[b].push_back(a);
     }
 
-    DFS(0, -1);
+    for(int i = 0; i < n; i++) {
+        if(dfn[i] == 0) {
+            DFS(i, -1);
+        }
+    }
+
+    sort(ans.begin(), ans.end());
 
     if(ans.empty()) cout<<"No Critical Road"<<endl;
     for(auto x : ans) {
