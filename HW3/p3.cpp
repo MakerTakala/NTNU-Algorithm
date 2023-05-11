@@ -1,26 +1,43 @@
 #include <bits/stdc++.h>
 using namespace std;
-#define MAX 1005
 #define x first
 #define y second
 
 int dir[5] = {1, 0, -1, 0, 1};
 
-int n, m; 
+int n, m, ans = 0; 
 
-pair<int, int> bed, door, lava;
+vector<pair<int, int>> lavas;
+pair<int, int> bed, door;
 
-// void show() {
-//     for(int i = 0; i < n; i++) {
-//         for(int j = 0; j < m; j++) {
-//             cout<<graph[i][j];
-//         }
-//         cout<<endl;
-//     }
-//     cout<<endl;
-// }
 
-bool BFS(vector<vector<char>> graph) {
+vector<vector<int>> get_flow_time(vector<vector<char>> graph) {
+    int time = 1;
+    queue<pair<int, int>> lava_edge;
+    vector<vector<int>> lava_flow_time(n, vector<int>(m, 0));
+    for(auto lava : lavas) {
+        lava_edge.push(lava);
+    }
+
+    while(!lava_edge.empty()) {
+        int size = lava_edge.size();
+         while(size--) {
+            pair<int, int> top = lava_edge.front(); lava_edge.pop();
+            for(int i = 0; i < 4; i++) {
+                int nx = top.x + dir[i], ny = top.y + dir[i + 1];
+                if(0 <= nx && nx < n && 0 <= ny && ny < m && graph[nx][ny] == 'C') {
+                    lava_flow_time[nx][ny] = time;
+                    graph[nx][ny] = 'L';
+                    lava_edge.push({nx, ny});
+                }
+            }
+        }
+        time++;
+    }
+    return lava_flow_time;
+}
+
+bool BFS(vector<vector<char>> graph, vector<vector<int>> lava_flow_time, int limit) {
     queue<pair<int, int>> bed_edge, door_edge;
     bed_edge.push(bed); door_edge.push(door);
 
@@ -32,7 +49,7 @@ bool BFS(vector<vector<char>> graph) {
                 int nx = top.x + dir[i], ny = top.y + dir[i + 1];
                 if(0 <= nx && nx < n && 0 <= ny && ny < m) {
                     if(graph[nx][ny] == 'D') return true;
-                    if(graph[nx][ny] == 'C') {
+                    if(graph[nx][ny] == 'C' && lava_flow_time[nx][ny] > limit) {
                         graph[nx][ny] = 'B';
                         bed_edge.push({nx, ny});
                     }
@@ -47,7 +64,7 @@ bool BFS(vector<vector<char>> graph) {
                 int nx = top.x + dir[i], ny = top.y + dir[i + 1];
                 if(0 <= nx && nx < n && 0 <= ny && ny < m) {
                     if(graph[nx][ny] == 'B') return true;
-                    if(graph[nx][ny] == 'C') {
+                    if(graph[nx][ny] == 'C' && lava_flow_time[nx][ny] > limit) {
                         graph[nx][ny] = 'D';
                         door_edge.push({nx, ny});
                     }
@@ -76,36 +93,24 @@ int main() {
                     door = {i, j};
                     break;
                 case 'L':
-                    lava = {i, j};
+                    lavas.push_back({i, j});
                     break;
             }
         }
     }
 
+    vector<vector<int>> lava_flow_time = get_flow_time(graph);
+    
+    int l = 1, r = 1000005;
 
-    int ans = 0;
-    queue<pair<int, int>> lava_edge;
-    lava_edge.push(lava);
-
-    while(!lava_edge.empty()) {
-        //show();
-        int size = lava_edge.size();
-         while(size--) {
-            pair<int, int> top = lava_edge.front(); lava_edge.pop();
-            for(int i = 0; i < 4; i++) {
-                int nx = top.x + dir[i], ny = top.y + dir[i + 1];
-                if(0 <= nx && nx < n && 0 <= ny && ny < m && graph[nx][ny] == 'C') {
-                    graph[nx][ny] = 'L';
-                    lava_edge.push({nx, ny});
-                }
-            }
-        }
-        if(!BFS(graph)) break;
-        ans++;
+    while(l < r) {
+        int m = l + (r - l) / 2;
+        if(!BFS(graph, lava_flow_time, m)) r = m;
+        else l = m + 1;
     }
+    ans = l - 1;
 
     cout<<(ans == 0 ? -1 : ans)<<endl;
-
 
     return 0;
 }
