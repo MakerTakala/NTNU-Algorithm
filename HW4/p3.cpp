@@ -3,34 +3,6 @@ using namespace std;
 
 #define INF 0x3ffffff
 
-class Road {
-    public:
-        int from, to, w;
-
-        Road(int _from, int _to, int _w) {
-            from = _from;
-            to = _to;
-            w = _w;
-        }
-};
-
-class Node {
-    public:
-        int from, dis, max_road, visit;
-
-        Node() {
-            dis = INF;
-            max_road = 0;
-            visit = 0;
-        }
-
-        bool operator< (const Node &that) const {
-            if(dis == that.dis && max_road == that.max_road) return visit < that.visit;
-            if(dis == that.dis) return max_road < that.max_road;
-            return dis > that.dis;
-        }
-};
-
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(nullptr);
@@ -38,51 +10,43 @@ int main() {
     int n, m;
     cin>>n>>m;
 
-    vector<vector<Road>> graph(n);
+    vector<vector<pair<long long int, int>>> graph(2 * n);
 
     for(int i = 0, u, v, w; i < m; i++) {
         cin>>u>>v>>w;
-        graph[u - 1].push_back(Road(u - 1, v - 1, w));
-        graph[v - 1].push_back(Road(v - 1, u - 1, w));
+        u--; v--;
+        graph[u].push_back({v, w});
+        graph[v].push_back({u, w});
+        graph[u + n].push_back({v + n, w});
+        graph[v + n].push_back({u + n, w});
+        graph[u].push_back({v + n, 0});
+        graph[v].push_back({u + n, 0});
     }
 
-    
+    vector<long long int> dis(2 * n, INF);
+    vector<int> count(2 * n, 0);
+    vector<int> visited(2 * n, 0);
 
-    vector<Node> cost(n);
-    cost[0].dis = 0;
-    for(int i = 0; i < n; i++) {
-        cost[i].from = i;
-    }
+    dis[0] = 0;
 
-    priority_queue<Node> pq;
-    pq.push(cost[0]);
-
-    vector<int> visited(n, 0);
+    priority_queue<pair<long long int, int>, vector<pair<long long int, int>>, greater<pair<long long int, int>>> pq;
+    pq.push({dis[0], 0});
 
     while(!pq.empty()) {
-        Node top = pq.top(); pq.pop();
-        if(visited[top.from] == 1) continue;
+        int u = pq.top().second; pq.pop();
+        if(visited[u] == 1) continue;
 
-        // cout<<"top: "<<top.from<<endl;
-
-        for(Road road : graph[top.from]) {
-            int ori_cost = cost[road.to].dis - cost[road.to].max_road;
-            int new_cost = cost[road.from].dis + road.w - max(cost[road.from].max_road, road.w);
-            if(ori_cost > new_cost || (ori_cost == new_cost && cost[road.to].visit < cost[road.from].visit + 1)) {
-                cost[road.to].dis = cost[road.from].dis + road.w;
-                cost[road.to].max_road = max(cost[road.from].max_road, road.w);
-                cost[road.to].visit = cost[road.from].visit + 1;
-                pq.push(cost[road.to]);
+        for(auto [v, w] : graph[u]) {
+            if(dis[u] + w < dis[v] || (dis[u] + w == dis[v] && count[u] + 1 > count[v])) {
+                dis[v] = dis[u] + w;
+                count[v] = count[u] + 1;
+                pq.push({dis[v], v});
             }
         }
-        // for(auto node : cost) {
-        //     cout<<"{"<<node.dis<<","<<node.max_road<<","<<node.visit<<"}";
-        // }
-        // cout<<endl;
-        visited[top.from] = 1;
+        visited[u] = 1;
     }
 
-    cout<<cost[n - 1].dis - cost[n - 1].max_road<<" "<<cost[n - 1].visit - 1<<endl;
-   
+    cout<<dis[2 * n - 1]<<" "<<count[2 * n - 1] - 1<<endl;    
+  
     return 0;
 }
